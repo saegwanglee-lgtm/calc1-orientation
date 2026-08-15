@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>미적분Ⅰ · 2학기 오리엔테이션</title>
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+  :root{
+    --paper:#FCFBF6; --paper2:#EFEDE4; --ink:#0f1e3d; --ink2:#4a5876;
+    --line:#D7D2C6; --blue:#1D4ED8; --blue-deep:#1437A6; --navy:#13245e;
+    --orange:#EA580C; --violet:#7C3AED; --crimson:#DC2626; --amber:#B45309;
+    --teal:#0E7490; --green:#15803D;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"Pretendard Variable",Pretendard,system-ui,sans-serif;
+    overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  #deck{position:fixed;inset:0;}
+  .slide{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    padding:clamp(20px,3.6vh,48px) clamp(26px,4.5vw,78px);
+    opacity:0; visibility:hidden; pointer-events:none; transition:opacity .45s;
+  }
+  .slide.active{opacity:1; visibility:visible; pointer-events:auto;}
+  .inner{width:100%; max-width:1180px; height:100%; display:flex; flex-direction:column; justify-content:center; gap:clamp(10px,1.6vh,22px);}
+  .eyebrow{
+    display:flex; align-items:center; gap:10px; font-size:clamp(12px,1.3vw,16px);
+    font-weight:800; color:var(--blue); letter-spacing:.02em;
+  }
+  .eyebrow .bar{width:26px; height:3px; background:var(--blue); border-radius:2px;}
+  h1.title{font-size:clamp(30px,4.6vw,58px); font-weight:800; line-height:1.18; color:var(--navy); letter-spacing:-.01em;}
+  h1.title .accent{color:var(--blue);}
+  h2.head{font-size:clamp(24px,3.2vw,40px); font-weight:800; color:var(--navy); line-height:1.22;}
+  .sub{font-size:clamp(14px,1.6vw,19px); color:var(--ink2); line-height:1.6; font-weight:500;}
+  .badge-row{display:flex; flex-wrap:wrap; gap:10px;}
+  .badge{
+    display:flex; flex-direction:column; gap:2px; background:#fff; border:2px solid var(--line);
+    border-radius:14px; padding:10px 16px;
+  }
+  .badge .k{font-size:12px; font-weight:700; color:var(--ink2);}
+  .badge .v{font-size:clamp(14px,1.6vw,18px); font-weight:800; color:var(--navy);}
+  .card{
+    background:#fff; border:2px solid var(--line); border-radius:20px;
+    padding:clamp(16px,2.4vw,28px); position:relative;
+  }
+  .grid{display:grid; gap:16px;}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr);}
+  .grid.cols-2{grid-template-columns:repeat(2,1fr);}
+  .pill{
+    display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:800;
+    color:var(--navy); background:var(--paper2); border:2px solid var(--line);
+    border-radius:999px; padding:5px 14px; width:fit-content;
+  }
+  .unit-num{
+    width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:19px; color:#fff; flex-shrink:0;
+  }
+  ul.plain{list-style:none;}
+  ul.plain li{position:relative; padding-left:20px; font-size:clamp(13.5px,1.5vw,16.5px); color:var(--ink); line-height:1.7;}
+  ul.plain li::before{content:"";position:absolute; left:0; top:.7em; width:7px; height:7px; border-radius:50%; background:var(--blue);}
+  .flow{display:flex; flex-wrap:wrap; align-items:center; gap:8px;}
+  .flow .step{
+    background:var(--paper2); border:2px solid var(--line); border-radius:12px; padding:8px 14px;
+    font-weight:700; font-size:clamp(12px,1.4vw,15px); color:var(--navy);
+  }
+  .flow .arrow{color:var(--ink2); font-weight:700;}
+  table.plan{width:100%; border-collapse:collapse;}
+  table.plan th, table.plan td{text-align:left; padding:10px 14px; font-size:clamp(12.5px,1.4vw,15px); border-bottom:1px solid var(--line);}
+  table.plan th{color:var(--ink2); font-weight:700; font-size:12.5px;}
+  table.plan td{color:var(--ink); font-weight:600;}
+  table.plan tr:last-child td{border-bottom:none;}
+  .placeholder{color:var(--ink2); font-style:normal; border-bottom:2px dashed var(--line); padding:0 3px;}
+  .note{font-size:12.5px; color:var(--ink2); font-weight:600;}
+  .legend-item{display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; color:var(--ink);}
+  .dot{width:12px; height:12px; border-radius:4px; flex-shrink:0;}
+  .barlist .row{display:grid; grid-template-columns:150px 1fr 56px; align-items:center; gap:12px; margin-bottom:14px;}
+  .barlist .label{font-size:14px; font-weight:700; color:var(--navy);}
+  .barlist .track{background:var(--paper2); border-radius:8px; height:16px; position:relative; overflow:hidden;}
+  .barlist .fill{position:absolute; left:0; top:0; bottom:0; border-radius:8px;}
+  .barlist .val{font-size:14px; font-weight:800; color:var(--ink); text-align:right;}
+
+  /* section divider */
+  .slide.section .inner{align-items:flex-start;}
+  .section-num{font-size:clamp(60px,9vw,130px); font-weight:800; color:var(--paper2); line-height:1; -webkit-text-stroke:2px var(--line);}
+
+  /* nav */
+  #hud{position:fixed; top:22px; left:24px; right:24px; display:flex; justify-content:space-between; align-items:center; pointer-events:none; z-index:5;}
+  .progress-pill{
+    background:#fff; border:2px solid var(--line); border-radius:999px; padding:6px 16px;
+    font-size:13px; font-weight:800; color:var(--navy); pointer-events:auto;
+  }
+  .navbtn{
+    position:fixed; top:50%; transform:translateY(-50%); width:44px; height:44px; border-radius:50%;
+    background:#fff; border:2px solid var(--line); color:var(--navy); font-size:20px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; z-index:5; transition:background .2s;
+  }
+  .navbtn:hover{background:var(--paper2);}
+  #prevBtn{left:16px;} #nextBtn{right:16px;}
+  #footHint{
+    position:fixed; bottom:18px; left:24px; font-size:11.5px; color:var(--ink2); font-weight:600;
+    pointer-events:none; z-index:5;
+  }
+  #dots{position:fixed; bottom:18px; right:24px; display:flex; gap:6px; z-index:5;}
+  #dots .d{width:6px; height:6px; border-radius:50%; background:var(--line); transition:background .2s, width .2s;}
+  #dots .d.on{background:var(--blue); width:18px; border-radius:4px;}
+</style>
+</head>
+<body data-palette="#1D4ED8,#EA580C,#7C3AED">
+<div id="deck"></div>
+<div id="hud"><span class="progress-pill"><span id="pnum">1</span> / <span id="ptotal">12</span></span></div>
+<button class="navbtn" id="prevBtn" aria-label="이전">‹</button>
+<button class="navbtn" id="nextBtn" aria-label="다음">›</button>
+<div id="footHint">← → 이동 · 클릭으로도 이동</div>
+<div id="dots"></div>
+
+<script>
+const slidesHTML = [];
+
+// ---------- 1. 표지 ----------
+slidesHTML.push(`
+<div class="inner">
+  <div class="eyebrow"><span class="bar"></span>2026학년도 2학기 오리엔테이션</div>
+  <h1 class="title">미적분Ⅰ<br><span class="accent">함께, 끝까지 가보겠습니다</span></h1>
+  <p class="sub">변화를 읽고, 변화를 계산하는 한 학기 — 극한 · 미분 · 적분</p>
+  <div class="badge-row" style="margin-top:10px;">
+    <div class="badge"><span class="k">학교</span><span class="v"><span class="placeholder">[학교명]</span></span></div>
+    <div class="badge"><span class="k">대상</span><span class="v"><span class="placeholder">[학년 · 반]</span></span></div>
+    <div class="badge"><span class="k">담당교사</span><span class="v"><span class="placeholder">[담당 교사명]</span></span></div>
+  </div>
+</div>`);
+
+// ---------- 2. 목차 ----------
+slidesHTML.push(`
+<div class="inner">
+  <div class="eyebrow"><span class="bar"></span>Contents</div>
+  <h2 class="head">오늘, 이 순서로 이야기할게요</h2>
+  <div class="grid cols-2" style="margin-top:6px;">
+    ${[
+      ["01","인사말 · 우리의 한 학기"],
+      ["02","미적분Ⅰ, 왜 배울까?"],
+      ["03","한 학기 학습 로드맵"],
+      ["04","단원 미리보기 — 함수의 극한과 연속"],
+      ["05","단원 미리보기 — 미분"],
+      ["06","단원 미리보기 — 적분"],
+      ["07","평가 방법 한눈에 보기"],
+      ["08","지필평가 안내"],
+      ["09","수행평가 안내"],
+      ["10","함께 만들어가요"],
+    ].map(([n,t])=>`
+      <div class="card" style="padding:14px 18px; display:flex; align-items:center; gap:14px;">
+        <span style="font-weight:800; color:var(--blue); font-size:15px;">${n}</span>
+        <span style="font-weight:700; color:var(--navy); font-size:clamp(13px,1.4vw,15.5px);">${t}</span>
+      </div>`).join("")}
+  </div>
+</div>`);
+
+// ---------- 3. 인사말 ----------
+slidesHTML.push(`
+<div class="inner">
+  <div class="eyebrow"><span class="bar"></span>Greetings</div>
+  <h2 class="head">안녕하세요, 반갑습니다</h2>
+  <p class="sub" style="max-width:760px;">
+    2학기 미적분Ⅰ을 함께할 <span class="placeholder">[담당 교사명]</span>입니다.
+    미적분은 처음엔 낯설지만, 결국 <b>"변화를 읽는 언어"</b>를 배우는 시간입니다.
+    한 학기 동안 서두르지 않고, 개념을 이해하는 것부터 차근차근 함께 가보겠습니다.
+  </p>
+  <div class="grid cols-3" style="margin-top:8px;">
+    <div class="card">
+      <div class="pill">교사 소개</div>
+      <p class="sub" style="margin-top:10px;"><span class="placeholder">[한 줄 소개 / 연락 가능 시간]</span></p>
+    </div>
+    <div class="card">
+      <div class="pill">수업 철학</div>
+      <p class="sub" style="margin-top:10px;">개념 이해 → 스스로 풀이 → 서로 설명하기 순서로 수업합니다.</p>
+    </div>
+    <div class="card">
+      <div class="pill">소통 채널</div>
+      <p class="sub" style="margin-top:10px;"><span class="placeholder">[클래스룸 / 이메일 / 질문 게시판]</span></p>
+    </div>
+  </div>
+</div>`);
+
+// ---------- 4. 왜 배울까 ----------
+slidesHTML.push(`
+<div class="inner">
+  <div class="eyebrow"><span class="bar"></span>Why Calculus</div>
+  <h2 class="head">미적분Ⅰ, 왜 배울까?</h2>
+  <p class="sub" style="max-width:760px;">세상은 대부분 '변화'로 이루어져 있습니다. 속도, 기온, 주가, 인구 — 이 모든 변화를 정확히 표현하고 계산하는 도구가 바로 미적분입니다.</p>
+  <div class="grid cols-3" style="margin-top:6px;">
+    <div class="card">
+      <div class="unit-num" style="background:var(--blue);">?</div>
+      <h3 style="margin-top:12px; font-size:16px; color:var(--navy); font-weight:800;">한없이 가까워진다는 것</h3>
+      <p class="sub" style="margin-top:6px;">극한 — 정확히 도달하진 않아도 예측할 수 있는 값</p>
+    </div>
+    <div class="card">
+      <div class="unit-num" style="background:var(--orange);">Δ</div>
+      <h3 style="margin-top:12px; font-size:16px; color:var(--navy); font-weight:800;">그 순간의 변화율</h3>
+      <p class="sub" style="margin-top:6px;">미분 — 지금 이 순간, 얼마나 빠르게 변하는가</p>
+    </div>
+    <div class="card">
+      <div class="unit-num" style="background:var(--violet);">∫</div>
+      <h3 style="margin-top:12px; font-size:16px; color:var(--navy); font-weight:800;">쌓인 변화의 총합</h3>
+      <p class="sub" style="margin-top:6px;">적분 — 작은 조각을 모두 더하면 얻는 전체</p>
+    </div>
+  </div>
+</div>`);
+
+// ---------- 5. 로드맵 ----------
+slidesHTML.push(`
+<div class="inner">
+  <div class="eyebrow"><span class="bar"></span>Roadmap</div>
+  <h2 class="head">한 학기 학습 로드맵</h2>
+  <p class="sub">2022 개정 교육과정 미적분Ⅰ은 아래 세 대단원으로 이어집니다.</p>
+  <div class="flow" style="margin-top:8px;">
+    <span class="step" style="background:#fff; border-color:var(--blue); color:var(--blue);">함수의 극한과 연속</span>
+    <span class="arrow">→</span>
+    <span class="step" style="background:#fff; border-color:var(--orange); color:var(--orange);">미분</span>
+    <span class="arrow">→</span>
+    <span class="step" style="background:#fff; border-color:var(--violet); color:var(--violet);">적분</span>
+  </div>
+  <div class="grid cols-3" style="margin-top:10px;">
+    <div class="card">
+      <div class="pill">Ⅰ. 함수의 극한과 연속</div>
+      <ul class="plain" style="margin-top:10px;"><li>함수의 극한</li><li>함수의 연속</li></ul>
+    </div>
+    <div class="card">
+      <div class="pill">Ⅱ. 미분</div>
+      <ul class="plain" style="margin-top:10px;"><li>미분계수</li><li>도함수</li><li>도함수의 활용</li></ul>
+    </div>
+    <div class="card">
+      <div class="pill">Ⅲ. 적분</div>
+      <ul class="plain" style="margin-top:10px;"><li>부정적분</li><li>정적분</li><li>정적분의 활용</li></ul>
+    </div>
+  </div>
+  <p class="note">※ 진도 시기는 <span class="placeholder">[학교 진도표]</span>에 맞추어 조정하세요.</p>
+</div>`);
+
+// ---------- helper: unit intro slide ----------
+function unitSlide({num, color, badge, title, question, life, subunits, goal}){
+  return `
+  <div class="inner">
+    <div class="eyebrow"><span class="bar" style="background:${color};"></span>Unit ${num} 미리보기</div>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <div class="unit-num" style="background:${color}; font-size:22px;">${num}</div>
+      <h2 class="head" style="color:${color === 'var(--orange)' ? 'var(--navy)' : 'var(--navy)'};">${title}</h2>
+    </div>
+    <div class="grid cols-2" style="margin-top:8px;">
+      <div class="card">
+        <div class="pill">🤔 핵심 질문</div>
+        <p style="margin-top:10px; font-size:clamp(16px,1.9vw,21px); font-weight:800; color:var(--navy); line-height:1.5;">${question}</p>
+        <div class="pill" style="margin-top:16px;">🌍 실생활 연결</div>
+        <p class="sub" style="margin-top:8px;">${life}</p>
+      </div>
+      <div class="card">
+        <div class="pill">📘 이 단원에서 배우는 것</div>
+        <ul class="plain" style="margin-top:10px;">${subunits.map(s=>`<li>${s}</li>`).join("")}</ul>
+        <div class="pill" style="margin-top:16px;">🎯 학습 목표</div>
+        <p class="sub" style="margin-top:8px;">${goal}</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ---------- 6~8. 단원 미리보기 ----------
+slidesHTML.push(unitSlide({
+  num:1, color:"var(--blue)",
+  title:"함수의 극한과 연속",
+  question:"숫자가 어떤 값에 한없이 가까워진다는 건, 정확히 무슨 뜻일까?",
+  life:"자동차 속도계가 가리키는 '지금 이 순간'의 속도, 신호가 끊기지 않고 이어지는 통신선의 설계는 모두 '극한'의 개념 위에 서 있습니다.",
+  subunits:["함수의 극한 — 좌극한 · 우극한, 극한값의 계산","함수의 연속 — 연속의 정의, 최대·최소 정리"],
+  goal:"극한의 뜻을 이해하고, 함수의 연속성을 판단할 수 있다."
+}));
+
+slidesHTML.push(unitSlide({
+  num:2, color:"var(--orange)",
+  title:"미분",
+  question:"그래프 위의 한 점에서, 함수는 지금 얼마나 빠르게 변하고 있을까?",
+  life:"과속 단속 카메라의 순간 속도, 최소 비용 · 최대 이익을 찾는 경영 문제, 롤러코스터 설계의 곡선까지 — 모두 '순간의 변화율'을 다룹니다.",
+  subunits:["미분계수 — 평균변화율에서 순간변화율로","도함수 — 여러 가지 함수의 미분법","도함수의 활용 — 접선, 증가·감소, 극대·극소, 최적화"],
+  goal:"순간변화율의 의미를 이해하고, 그래프 분석과 최적화 문제에 활용할 수 있다."
+}));
+
+slidesHTML.push(unitSlide({
+  num:3, color:"var(--violet)",
+  title:"적분",
+  question:"불규칙한 모양의 넓이나, 계속 변하는 속도로 이동한 거리는 어떻게 구할까?",
+  life:"울퉁불퉁한 땅의 면적 측량, 가속·감속을 반복한 자동차의 총 이동 거리, 시간에 따라 누적되는 강수량까지 — '쌓인 변화의 합'을 계산합니다.",
+  subunits:["부정적분 — 미분의 역연산","정적분 — 구분구적법과 정적분의 정의","정적분의 활용 — 넓이, 속도와 거리"],
+  goal:"적분의 의미를 이해하고, 넓이 · 거리 등 다양한 상황에 활용할 수 있다."
+}));
+
+// ---------- 9. 평가 방법 한눈에 (도넛 차트) ----------
+(function(){
+  const written = 60, perf = 40; // placeholder ratio
+  const r = 78, cx=100, cy=100, sw=26;
+  const circ = 2*Math.PI*r;
+  const gap = 6; // px gap between segments
+  const writtenLen = circ*(written/100) - gap;
+  const perfLen = circ*(perf/100) - gap;
+  const writtenOffset = circ*0.25; // start at top
+  const perfOffset = writtenOffset - (circ*(written/100));
+  slidesHTML.push(`
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>Evaluation</div>
+    <h2 class="head">평가 방법, 한눈에 보기</h2>
+    <p class="sub">아래 비율은 <b>예시</b>입니다 — 학교 학업성적관리규정에 맞추어 반드시 수정해 주세요.</p>
+    <div class="grid cols-2" style="margin-top:10px; align-items:center;">
+      <div class="card" style="display:flex; align-items:center; justify-content:center;">
+        <svg viewBox="0 0 200 200" style="width:min(260px,80%); height:auto;">
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--paper2)" stroke-width="${sw}"/>
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--blue)" stroke-width="${sw}"
+            stroke-linecap="round" stroke-dasharray="${writtenLen} ${circ-writtenLen}"
+            stroke-dashoffset="${circ*0.25}" transform="rotate(0 ${cx} ${cy})"/>
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--orange)" stroke-width="${sw}"
+            stroke-linecap="round" stroke-dasharray="${perfLen} ${circ-perfLen}"
+            stroke-dashoffset="${circ*0.25 - circ*(written/100)}" transform="rotate(0 ${cx} ${cy})"/>
+          <text x="100" y="94" text-anchor="middle" font-size="15" font-weight="800" fill="var(--ink2)" font-family="Pretendard Variable, sans-serif">지필 : 수행</text>
+          <text x="100" y="120" text-anchor="middle" font-size="26" font-weight="800" fill="var(--navy)" font-family="Pretendard Variable, sans-serif">${written} : ${perf}</text>
+        </svg>
+      </div>
+      <div class="card">
+        <div class="legend-item" style="margin-bottom:14px;">
+          <span class="dot" style="background:var(--blue);"></span>
+          <span>지필평가</span><span style="margin-left:auto; font-weight:800; color:var(--navy);">${written}%</span>
+        </div>
+        <p class="sub" style="margin:0 0 18px 26px;">중간 · 기말고사 — 객관식 + 서술형</p>
+        <div class="legend-item" style="margin-bottom:14px;">
+          <span class="dot" style="background:var(--orange);"></span>
+          <span>수행평가</span><span style="margin-left:auto; font-weight:800; color:var(--navy);">${perf}%</span>
+        </div>
+        <p class="sub" style="margin:0 0 0 26px;">단원평가 · 수업참여 · 과제 등 (다음 장 참고)</p>
+      </div>
+    </div>
+  </div>`);
+})();
+
+// ---------- 10. 지필평가 안내 ----------
+slidesHTML.push(`
+<div class="inner">
+  <div class="eyebrow"><span class="bar"></span>Written Exam</div>
+  <h2 class="head">지필평가 안내</h2>
+  <div class="grid cols-2" style="margin-top:8px;">
+    <div class="card">
+      <div class="pill" style="border-color:var(--blue); color:var(--blue);">중간고사</div>
+      <table class="plan" style="margin-top:12px;">
+        <tr><th>반영비율</th><td><span class="placeholder">[ ]%</span></td></tr>
+        <tr><th>시험범위</th><td><span class="placeholder">[단원 범위]</span></td></tr>
+        <tr><th>문항구성</th><td><span class="placeholder">[객관식 O문항 + 서술형 O문항]</span></td></tr>
+        <tr><th>예정일</th><td><span class="placeholder">[YYYY.MM.DD]</span></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="pill" style="border-color:var(--blue-deep); color:var(--blue-deep);">기말고사</div>
+      <table class="plan" style="margin-top:12px;">
+        <tr><th>반영비율</th><td><span class="placeholder">[ ]%</span></td></tr>
+        <tr><th>시험범위</th><td><span class="placeholder">[단원 범위]</span></td></tr>
+        <tr><th>문항구성</th><td><span class="placeholder">[객관식 O문항 + 서술형 O문항]</span></td></tr>
+        <tr><th>예정일</th><td><span class="placeholder">[YYYY.MM.DD]</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <p class="note">※ 서술형은 풀이 과정을 함께 채점합니다. 답만 맞으면 되는 것이 아니라 '왜'를 설명하는 연습이 중요합니다.</p>
+</div>`);
+
+// ---------- 11. 수행평가 안내 (막대) ----------
+(function(){
+  const items = [
+    {label:"단원평가(서술형)", val:15, color:"var(--blue)"},
+    {label:"수업참여 · 활동지", val:10, color:"var(--orange)"},
+    {label:"과제 · 포트폴리오", val:15, color:"var(--violet)"},
+  ];
+  const rows = items.map(it=>`
+    <div class="row">
+      <span class="label">${it.label}</span>
+      <div class="track"><div class="fill" style="width:${(it.val/20*100)}%; background:${it.color};"></div></div>
+      <span class="val">${it.val}%</span>
+    </div>`).join("");
+  slidesHTML.push(`
+  <div class="inner">
+    <div class="eyebrow"><span class="bar"></span>Performance Assessment</div>
+    <h2 class="head">수행평가 안내</h2>
+    <p class="sub">수행평가 총 40% (예시) — 항목별 반영비율은 아래와 같습니다.</p>
+    <div class="card barlist" style="margin-top:10px;">${rows}</div>
+    <div class="grid cols-3" style="margin-top:4px;">
+      <div class="card"><p class="sub"><b style="color:var(--navy);">단원평가</b><br>단원별 서술형 평가지, 풀이 과정 채점</p></div>
+      <div class="card"><p class="sub"><b style="color:var(--navy);">수업참여</b><br>모둠활동 · 발표 · 활동지 성실도</p></div>
+      <div class="card"><p class="sub"><b style="color:var(--navy);">과제/포트폴리오</b><br><span class="placeholder">[제출 방식 · 기한]</span></p></div>
+    </div>
+  </div>`);
+})();
+
+// ---------- 12. 마무리 ----------
+slidesHTML.push(`
+<div class="inner">
+  <div class="eyebrow"><span class="bar"></span>Let's Start</div>
+  <h2 class="head">함께 만들어가요</h2>
+  <p class="sub" style="max-width:760px;">미적분은 '한 번에 이해'하는 과목이 아니라 '반복해서 익숙해지는' 과목입니다. 모르는 것이 있으면 언제든 편하게 질문해 주세요.</p>
+  <div class="grid cols-3" style="margin-top:8px;">
+    <div class="card">
+      <div class="pill">질문 · 소통</div>
+      <p class="sub" style="margin-top:10px;"><span class="placeholder">[클래스룸 / 이메일 / QR]</span></p>
+    </div>
+    <div class="card">
+      <div class="pill">준비물</div>
+      <p class="sub" style="margin-top:10px;"><span class="placeholder">[교과서 · 문제집 · 계산기 등]</span></p>
+    </div>
+    <div class="card">
+      <div class="pill">첫 수업 준비</div>
+      <p class="sub" style="margin-top:10px;"><span class="placeholder">[다음 시간 예고]</span></p>
+    </div>
+  </div>
+  <p class="sub" style="margin-top:18px; font-weight:800; color:var(--navy);">2학기, 잘 부탁드립니다 🙂</p>
+</div>`);
+
+// ================= 렌더 & 네비게이션 =================
+const deck = document.getElementById('deck');
+slidesHTML.forEach((html, i)=>{
+  const div = document.createElement('div');
+  div.className = 'slide';
+  div.dataset.index = i;
+  div.innerHTML = html;
+  deck.appendChild(div);
+});
+const slides = Array.from(document.querySelectorAll('.slide'));
+const total = slides.length;
+document.getElementById('ptotal').textContent = total;
+const dotsWrap = document.getElementById('dots');
+slides.forEach((_,i)=>{
+  const d = document.createElement('div');
+  d.className='d';
+  d.addEventListener('click', ()=>go(i));
+  dotsWrap.appendChild(d);
+});
+const dots = Array.from(dotsWrap.children);
+let cur = 0;
+function render(){
+  slides.forEach((s,i)=> s.classList.toggle('active', i===cur));
+  dots.forEach((d,i)=> d.classList.toggle('on', i===cur));
+  document.getElementById('pnum').textContent = cur+1;
+}
+function go(i){ cur = Math.max(0, Math.min(total-1, i)); render(); }
+document.getElementById('prevBtn').addEventListener('click', ()=>go(cur-1));
+document.getElementById('nextBtn').addEventListener('click', ()=>go(cur+1));
+window.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight' || e.key===' '){ go(cur+1); }
+  else if(e.key==='ArrowLeft'){ go(cur-1); }
+});
+let touchX=null;
+window.addEventListener('touchstart', e=> touchX = e.touches[0].clientX);
+window.addEventListener('touchend', e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(dx>60) go(cur-1); else if(dx<-60) go(cur+1);
+  touchX=null;
+});
+render();
+</script>
+</body>
+</html>

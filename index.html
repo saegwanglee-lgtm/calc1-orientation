@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>미적분Ⅰ · 오리엔테이션 입장</title>
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+  :root{
+    --paper:#FCFBF6; --paper2:#EFEDE4; --ink:#0f1e3d; --ink2:#4a5876;
+    --line:#D7D2C6; --blue:#1D4ED8; --blue-deep:#1437A6; --navy:#13245e;
+    --orange:#EA580C; --green:#15803D; --crimson:#DC2626;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--paper); color:var(--ink); min-height:100%;
+    font-family:"Pretendard Variable",Pretendard,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex; align-items:center; justify-content:center; padding:32px 20px;
+  }
+  .wrap{width:100%; max-width:520px;}
+  .eyebrow{display:flex; align-items:center; gap:10px; font-size:14px; font-weight:800; color:var(--blue); margin-bottom:10px;}
+  .eyebrow .bar{width:24px; height:3px; background:var(--blue); border-radius:2px;}
+  h1{font-size:clamp(26px,6vw,34px); font-weight:800; color:var(--navy); line-height:1.25; margin-bottom:6px;}
+  h1 .accent{color:var(--blue);}
+  p.sub{font-size:15px; color:var(--ink2); font-weight:500; margin-bottom:22px;}
+  .card{background:#fff; border:2px solid var(--line); border-radius:20px; padding:22px; box-shadow:0 10px 30px rgba(19,36,94,.05);}
+  .tabs{display:flex; gap:8px; margin-bottom:16px;}
+  .tab{
+    flex:1; text-align:center; padding:10px 8px; border-radius:12px; border:2px solid var(--line);
+    background:#fff; color:var(--ink2); font-weight:800; font-size:14px; cursor:pointer; transition:.15s;
+  }
+  .tab.active{background:var(--blue); border-color:var(--blue); color:#fff;}
+  .field{margin-bottom:12px;}
+  .field input{
+    width:100%; padding:13px 14px; border-radius:12px; border:2px solid var(--line);
+    font-size:15px; font-family:inherit; color:var(--ink); background:var(--paper);
+  }
+  .field input:focus{outline:none; border-color:var(--blue);}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  button.primary{
+    width:100%; padding:14px; border:none; border-radius:12px; background:var(--blue); color:#fff;
+    font-size:15.5px; font-weight:800; font-family:inherit; cursor:pointer; margin-top:6px; transition:.15s;
+  }
+  button.primary:hover{background:var(--blue-deep);}
+  button.primary:disabled{background:var(--line); cursor:not-allowed;}
+  .msg{font-size:12.5px; color:var(--ink2); margin-top:14px; line-height:1.6; text-align:center;}
+  .msg.err{color:var(--crimson); font-weight:700;}
+  .state{display:none; text-align:center; padding:20px 0;}
+  .state.active{display:block;}
+  .check{
+    width:56px; height:56px; border-radius:50%; background:var(--green); color:#fff; font-size:28px;
+    display:flex; align-items:center; justify-content:center; margin:0 auto 14px;
+  }
+  .state h2{font-size:19px; color:var(--navy); margin-bottom:6px;}
+  .state p{font-size:13.5px; color:var(--ink2);}
+  .noSession{display:none; text-align:center; padding:10px 0;}
+  .noSession.active{display:block;}
+  .spin{
+    width:34px; height:34px; border:4px solid var(--line); border-top-color:var(--blue); border-radius:50%;
+    margin:0 auto 12px; animation:sp 0.8s linear infinite;
+  }
+  @keyframes sp{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow"><span class="bar"></span>2026학년도 2학기 오리엔테이션</div>
+  <h1>미적분Ⅰ<br><span class="accent">함께, 끝까지 가보겠습니다</span></h1>
+  <p class="sub">이름 또는 별명을 입력하고 입장하세요.</p>
+
+  <div class="card">
+
+    <div id="noSessionBox" class="noSession">
+      <p style="font-size:14px; color:var(--ink2); line-height:1.7;">
+        입장 세션 정보를 찾을 수 없어요.<br>선생님이 안내한 <b>입장 링크(QR)</b>로 접속해 주세요.
+      </p>
+    </div>
+
+    <div id="joinBox">
+      <div class="tabs">
+        <div class="tab active" data-tab="name">이름으로 입장</div>
+        <div class="tab" data-tab="nick">별명으로 입장</div>
+      </div>
+
+      <div class="panel active" data-panel="name">
+        <div class="field"><input id="cls" type="text" placeholder="반 (예: 2학년 3반)" /></div>
+        <div class="field"><input id="realname" type="text" placeholder="이름" maxlength="20" /></div>
+      </div>
+      <div class="panel" data-panel="nick">
+        <div class="field"><input id="nick" type="text" placeholder="별명" maxlength="20" /></div>
+      </div>
+
+      <button class="primary" id="joinBtn">오리엔테이션 입장하기 →</button>
+      <p class="msg" id="msg">입력한 이름은 선생님 화면의 참여 현황에만 표시됩니다.</p>
+    </div>
+
+    <div class="state" id="loadingState">
+      <div class="spin"></div>
+      <p style="font-size:13.5px; color:var(--ink2);">입장하는 중...</p>
+    </div>
+
+    <div class="state" id="doneState">
+      <div class="check">✓</div>
+      <h2 id="doneName">입장 완료!</h2>
+      <p>잠시 후 오리엔테이션 슬라이드로 이동합니다</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const STORE_BASE = 'https://jsonblob.com/api/jsonBlob/';
+const params = new URLSearchParams(location.search);
+const sessionId = params.get('s');
+
+const joinBox = document.getElementById('joinBox');
+const noSessionBox = document.getElementById('noSessionBox');
+const loadingState = document.getElementById('loadingState');
+const doneState = document.getElementById('doneState');
+const msg = document.getElementById('msg');
+
+if(!sessionId){
+  joinBox.style.display = 'none';
+  noSessionBox.classList.add('active');
+} else {
+  // tabs
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      document.querySelector(`.panel[data-panel="${t.dataset.tab}"]`).classList.add('active');
+    });
+  });
+
+  document.getElementById('joinBtn').addEventListener('click', async ()=>{
+    const activeTab = document.querySelector('.tab.active').dataset.tab;
+    let displayName = '';
+    let cls = '';
+    if(activeTab === 'name'){
+      cls = document.getElementById('cls').value.trim();
+      const nm = document.getElementById('realname').value.trim();
+      if(!nm){ showErr('이름을 입력해 주세요.'); return; }
+      displayName = nm;
+    } else {
+      const nk = document.getElementById('nick').value.trim();
+      if(!nk){ showErr('별명을 입력해 주세요.'); return; }
+      displayName = nk;
+    }
+
+    joinBox.style.display = 'none';
+    loadingState.classList.add('active');
+
+    try{
+      const res = await fetch(STORE_BASE + sessionId);
+      if(!res.ok) throw new Error('session-not-found');
+      const data = await res.json();
+      const list = Array.isArray(data.participants) ? data.participants : [];
+      list.push({ name: displayName, cls: cls, type: activeTab, joinedAt: Date.now() });
+      await fetch(STORE_BASE + sessionId, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ participants: list })
+      });
+      loadingState.classList.remove('active');
+      doneState.classList.add('active');
+      document.getElementById('doneName').textContent = `${displayName}님, 반가워요!`;
+      setTimeout(()=>{ location.href = 'deck.html'; }, 1400);
+    } catch(e){
+      loadingState.classList.remove('active');
+      joinBox.style.display = 'block';
+      showErr('입장에 실패했어요. 선생님께 다시 링크를 요청해 주세요.');
+    }
+  });
+}
+
+function showErr(text){
+  msg.textContent = text;
+  msg.classList.add('err');
+}
+</script>
+</body>
+</html>

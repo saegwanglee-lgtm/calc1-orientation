@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>교사용 · 참여 현황</title>
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+  :root{
+    --paper:#FCFBF6; --paper2:#EFEDE4; --ink:#0f1e3d; --ink2:#4a5876;
+    --line:#D7D2C6; --blue:#1D4ED8; --blue-deep:#1437A6; --navy:#13245e;
+    --orange:#EA580C; --green:#15803D; --crimson:#DC2626;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--paper); color:var(--ink); min-height:100%;
+    font-family:"Pretendard Variable",Pretendard,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; padding:32px 20px;
+  }
+  .wrap{max-width:960px; margin:0 auto;}
+  .eyebrow{display:flex; align-items:center; gap:10px; font-size:14px; font-weight:800; color:var(--blue); margin-bottom:10px;}
+  .eyebrow .bar{width:24px; height:3px; background:var(--blue); border-radius:2px;}
+  h1{font-size:clamp(24px,4vw,32px); font-weight:800; color:var(--navy); margin-bottom:6px;}
+  p.sub{font-size:14.5px; color:var(--ink2); font-weight:500; margin-bottom:22px;}
+  .card{background:#fff; border:2px solid var(--line); border-radius:20px; padding:26px; margin-bottom:20px;}
+  button.primary{
+    padding:14px 22px; border:none; border-radius:12px; background:var(--blue); color:#fff;
+    font-size:15.5px; font-weight:800; font-family:inherit; cursor:pointer; transition:.15s;
+  }
+  button.primary:hover{background:var(--blue-deep);}
+  button.ghost{
+    padding:10px 16px; border-radius:10px; border:2px solid var(--line); background:#fff; color:var(--ink2);
+    font-size:13px; font-weight:700; font-family:inherit; cursor:pointer;
+  }
+  .grid{display:grid; grid-template-columns:220px 1fr; gap:24px; align-items:center;}
+  #qr{border:2px solid var(--line); border-radius:16px; padding:10px; background:#fff; width:220px; height:220px;}
+  .linkRow{display:flex; gap:8px; margin-top:14px;}
+  .linkRow input{
+    flex:1; padding:12px 14px; border-radius:10px; border:2px solid var(--line); font-family:inherit;
+    font-size:13.5px; color:var(--ink2); background:var(--paper2);
+  }
+  .stat{display:flex; align-items:baseline; gap:8px; margin-bottom:4px;}
+  .stat .n{font-size:38px; font-weight:800; color:var(--navy);}
+  .stat .l{font-size:14px; font-weight:700; color:var(--ink2);}
+  .roster{margin-top:16px; max-height:360px; overflow-y:auto;}
+  .row{
+    display:flex; align-items:center; justify-content:space-between; padding:11px 14px;
+    border-bottom:1px solid var(--line); font-size:14.5px;
+  }
+  .row:last-child{border-bottom:none;}
+  .row .name{font-weight:800; color:var(--navy);}
+  .row .cls{font-size:12.5px; color:var(--ink2); margin-left:8px; font-weight:600;}
+  .row .time{font-size:12px; color:var(--ink2); font-weight:600;}
+  .empty{text-align:center; padding:40px 0; color:var(--ink2); font-size:14px;}
+  .pill{
+    display:inline-flex; font-size:12px; font-weight:800; padding:4px 10px; border-radius:999px;
+    background:var(--paper2); border:2px solid var(--line); color:var(--navy);
+  }
+  .note{font-size:12px; color:var(--ink2); line-height:1.7; margin-top:18px;}
+  .startCard{text-align:center; padding:50px 26px;}
+  .startCard h2{font-size:20px; color:var(--navy); margin-bottom:10px;}
+  .startCard p{font-size:14px; color:var(--ink2); margin-bottom:20px; max-width:420px; margin-left:auto; margin-right:auto;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow"><span class="bar"></span>Teacher View</div>
+  <h1>미적분Ⅰ 오리엔테이션 · 참여 현황</h1>
+  <p class="sub">학생들이 입장하면 이 화면에 실시간(약 3초 간격)으로 표시됩니다.</p>
+
+  <div id="startCard" class="card startCard">
+    <h2>세션을 시작해 주세요</h2>
+    <p>버튼을 누르면 학생용 입장 링크와 QR 코드가 만들어집니다. 학생들에게 링크(또는 QR)를 공유하세요.</p>
+    <button class="primary" id="startBtn">세션 시작하기 →</button>
+  </div>
+
+  <div id="liveCard" style="display:none;">
+    <div class="card">
+      <div class="grid">
+        <img id="qr" src="" alt="입장 QR코드" />
+        <div>
+          <span class="pill">학생 입장 링크</span>
+          <div class="linkRow">
+            <input id="linkBox" readonly />
+            <button class="ghost" id="copyBtn">링크 복사</button>
+          </div>
+          <div style="margin-top:14px; display:flex; gap:8px;">
+            <button class="ghost" id="resetBtn">참여 현황 초기화</button>
+            <button class="ghost" id="newSessionBtn">새 세션 시작</button>
+            <a href="deck.html" target="_blank" style="text-decoration:none;"><button class="ghost">슬라이드 열기 ↗</button></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stat"><span class="n" id="count">0</span><span class="l">명 입장</span></div>
+      <div class="roster" id="roster"><div class="empty">아직 입장한 학생이 없어요.</div></div>
+    </div>
+  </div>
+
+  <p class="note">
+    ※ 이 참여 현황은 별도 로그인 없이 가볍게 쓰도록 임시 공개 저장소를 사용합니다. 링크(또는 세션 ID)를 아는 사람은 누구나 열람·수정할 수 있고,
+    저장소는 예고 없이 초기화될 수 있어요. 이름/별명 외 민감한 정보는 입력하지 않도록 안내해 주세요.
+  </p>
+</div>
+
+<script>
+const STORE_CREATE = 'https://jsonblob.com/api/jsonBlob';
+const STORE_BASE = 'https://jsonblob.com/api/jsonBlob/';
+
+const startCard = document.getElementById('startCard');
+const liveCard = document.getElementById('liveCard');
+const linkBox = document.getElementById('linkBox');
+const qr = document.getElementById('qr');
+const countEl = document.getElementById('count');
+const rosterEl = document.getElementById('roster');
+
+let sessionId = new URLSearchParams(location.search).get('s') || localStorage.getItem('calc1_session');
+let pollTimer = null;
+
+if(sessionId){
+  activate(sessionId);
+}
+
+document.getElementById('startBtn').addEventListener('click', async ()=>{
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('startBtn').textContent = '세션 만드는 중...';
+  try{
+    const res = await fetch(STORE_CREATE, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ participants: [] })
+    });
+    const loc = res.headers.get('Location') || res.headers.get('location');
+    const id = loc.split('/').pop();
+    localStorage.setItem('calc1_session', id);
+    history.replaceState(null, '', `?s=${id}`);
+    activate(id);
+  } catch(e){
+    alert('세션 생성에 실패했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.');
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('startBtn').textContent = '세션 시작하기 →';
+  }
+});
+
+document.getElementById('newSessionBtn').addEventListener('click', ()=>{
+  localStorage.removeItem('calc1_session');
+  location.href = location.pathname;
+});
+
+document.getElementById('resetBtn').addEventListener('click', async ()=>{
+  if(!confirm('참여 현황을 모두 초기화할까요?')) return;
+  await fetch(STORE_BASE + sessionId, {
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ participants: [] })
+  });
+  render([]);
+});
+
+document.getElementById('copyBtn').addEventListener('click', ()=>{
+  navigator.clipboard.writeText(linkBox.value).then(()=>{
+    const btn = document.getElementById('copyBtn');
+    const old = btn.textContent;
+    btn.textContent = '복사됨!';
+    setTimeout(()=> btn.textContent = old, 1200);
+  });
+});
+
+function activate(id){
+  sessionId = id;
+  localStorage.setItem('calc1_session', id);
+  const joinUrl = `${location.origin}${location.pathname.replace('teacher.html','index.html')}?s=${id}`;
+  linkBox.value = joinUrl;
+  qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(joinUrl)}`;
+  startCard.style.display = 'none';
+  liveCard.style.display = 'block';
+  poll();
+  pollTimer = setInterval(poll, 3000);
+}
+
+async function poll(){
+  try{
+    const res = await fetch(STORE_BASE + sessionId);
+    if(!res.ok) return;
+    const data = await res.json();
+    render(Array.isArray(data.participants) ? data.participants : []);
+  } catch(e){ /* 다음 폴링에서 재시도 */ }
+}
+
+function render(list){
+  countEl.textContent = list.length;
+  if(list.length === 0){
+    rosterEl.innerHTML = '<div class="empty">아직 입장한 학생이 없어요.</div>';
+    return;
+  }
+  const sorted = [...list].sort((a,b)=> b.joinedAt - a.joinedAt);
+  rosterEl.innerHTML = sorted.map(p=>{
+    const t = new Date(p.joinedAt);
+    const hh = String(t.getHours()).padStart(2,'0');
+    const mm = String(t.getMinutes()).padStart(2,'0');
+    const clsTag = p.cls ? `<span class="cls">${escapeHtml(p.cls)}</span>` : '';
+    return `<div class="row"><span><span class="name">${escapeHtml(p.name)}</span>${clsTag}</span><span class="time">${hh}:${mm} 입장</span></div>`;
+  }).join('');
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>
